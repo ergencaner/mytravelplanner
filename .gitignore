@@ -3,5 +3,7 @@ client/node_modules/
 client/dist/
 server/uploads/
 *.db
+*.db-shm
+*.db-wal
 *.sqlite
 .env
