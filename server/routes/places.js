@@ -8,21 +8,21 @@ router.get('/plans/:planId/places', (req, res) => {
 });
 
 router.post('/plans/:planId/places', (req, res) => {
-  const { name, address, category, visit_date, visit_time, duration_hours, ticket_link, price, notes, lat, lng } = req.body;
+  const { name, address, category, visit_date, visit_time, duration_hours, ticket_link, price, notes, lat, lng, image_url } = req.body;
   if (!name) return res.status(400).json({ error: 'Name is required' });
 
   const result = db.prepare(
-    'INSERT INTO places_to_visit (plan_id, name, address, category, visit_date, visit_time, duration_hours, ticket_link, price, notes, lat, lng) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)'
-  ).run(req.params.planId, name, address, category, visit_date, visit_time, duration_hours, ticket_link, price, notes, lat, lng);
+    'INSERT INTO places_to_visit (plan_id, name, address, category, visit_date, visit_time, duration_hours, ticket_link, price, notes, lat, lng, image_url) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)'
+  ).run(req.params.planId, name, address, category, visit_date, visit_time, duration_hours, ticket_link, price, notes, lat, lng, image_url);
 
   res.status(201).json(db.prepare('SELECT * FROM places_to_visit WHERE id = ?').get(result.lastInsertRowid));
 });
 
 router.put('/places/:id', (req, res) => {
-  const { name, address, category, visit_date, visit_time, duration_hours, ticket_link, price, notes, lat, lng } = req.body;
+  const { name, address, category, visit_date, visit_time, duration_hours, ticket_link, price, notes, lat, lng, image_url } = req.body;
   db.prepare(
-    'UPDATE places_to_visit SET name=?, address=?, category=?, visit_date=?, visit_time=?, duration_hours=?, ticket_link=?, price=?, notes=?, lat=?, lng=? WHERE id=?'
-  ).run(name, address, category, visit_date, visit_time, duration_hours, ticket_link, price, notes, lat, lng, req.params.id);
+    'UPDATE places_to_visit SET name=?, address=?, category=?, visit_date=?, visit_time=?, duration_hours=?, ticket_link=?, price=?, notes=?, lat=?, lng=?, image_url=? WHERE id=?'
+  ).run(name, address, category, visit_date, visit_time, duration_hours, ticket_link, price, notes, lat, lng, image_url, req.params.id);
   res.json(db.prepare('SELECT * FROM places_to_visit WHERE id = ?').get(req.params.id));
 });
 

@@ -133,4 +133,8 @@ db.exec(`
   );
 `);
 
+// Migrations: add image_url column if not already present
+try { db.exec('ALTER TABLE places_to_visit ADD COLUMN image_url TEXT'); } catch {}
+try { db.exec('ALTER TABLE restaurants ADD COLUMN image_url TEXT'); } catch {}
+
 module.exports = db;

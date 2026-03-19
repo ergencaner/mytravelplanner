@@ -8,21 +8,21 @@ router.get('/plans/:planId/restaurants', (req, res) => {
 });
 
 router.post('/plans/:planId/restaurants', (req, res) => {
-  const { name, address, cuisine, meal_type, visit_date, visit_time, reservation_link, price_range, notes, lat, lng } = req.body;
+  const { name, address, cuisine, meal_type, visit_date, visit_time, reservation_link, price_range, notes, lat, lng, image_url } = req.body;
   if (!name) return res.status(400).json({ error: 'Name is required' });
 
   const result = db.prepare(
-    'INSERT INTO restaurants (plan_id, name, address, cuisine, meal_type, visit_date, visit_time, reservation_link, price_range, notes, lat, lng) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)'
-  ).run(req.params.planId, name, address, cuisine, meal_type, visit_date, visit_time, reservation_link, price_range, notes, lat, lng);
+    'INSERT INTO restaurants (plan_id, name, address, cuisine, meal_type, visit_date, visit_time, reservation_link, price_range, notes, lat, lng, image_url) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)'
+  ).run(req.params.planId, name, address, cuisine, meal_type, visit_date, visit_time, reservation_link, price_range, notes, lat, lng, image_url);
 
   res.status(201).json(db.prepare('SELECT * FROM restaurants WHERE id = ?').get(result.lastInsertRowid));
 });
 
 router.put('/restaurants/:id', (req, res) => {
-  const { name, address, cuisine, meal_type, visit_date, visit_time, reservation_link, price_range, notes, lat, lng } = req.body;
+  const { name, address, cuisine, meal_type, visit_date, visit_time, reservation_link, price_range, notes, lat, lng, image_url } = req.body;
   db.prepare(
-    'UPDATE restaurants SET name=?, address=?, cuisine=?, meal_type=?, visit_date=?, visit_time=?, reservation_link=?, price_range=?, notes=?, lat=?, lng=? WHERE id=?'
-  ).run(name, address, cuisine, meal_type, visit_date, visit_time, reservation_link, price_range, notes, lat, lng, req.params.id);
+    'UPDATE restaurants SET name=?, address=?, cuisine=?, meal_type=?, visit_date=?, visit_time=?, reservation_link=?, price_range=?, notes=?, lat=?, lng=?, image_url=? WHERE id=?'
+  ).run(name, address, cuisine, meal_type, visit_date, visit_time, reservation_link, price_range, notes, lat, lng, image_url, req.params.id);
   res.json(db.prepare('SELECT * FROM restaurants WHERE id = ?').get(req.params.id));
 });
 

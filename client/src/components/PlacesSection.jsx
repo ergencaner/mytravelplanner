@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { api, geocode } from '../api';
+import { api, geocode, fetchPlaceImage } from '../api';
 import Modal from './Modal';
 import FileUpload from './FileUpload';
 
@@ -23,8 +23,14 @@ export default function PlacesSection({ plan, places, files, onRefresh }) {
     if (!form.address) return;
     setGeo('searching');
     const r = await geocode(form.address);
-    if (r) { setForm(f => ({ ...f, lat: r.lat, lng: r.lng })); setGeo('found'); }
-    else setGeo('notfound');
+    if (r) {
+      setForm(f => ({ ...f, lat: r.lat, lng: r.lng }));
+      setGeo('found');
+      if (!form.image_url) {
+        const imgUrl = await fetchPlaceImage(form.name || form.address);
+        if (imgUrl) setForm(f => ({ ...f, image_url: imgUrl }));
+      }
+    } else setGeo('notfound');
   };
 
   const handleSave = async () => {
@@ -57,6 +63,9 @@ export default function PlacesSection({ plan, places, files, onRefresh }) {
       <div className="items-list">
         {places.map(item => (
           <div key={item.id} className="item-card">
+            {item.image_url && (
+              <img src={item.image_url} alt={item.name} style={{ width: '100%', height: 160, objectFit: 'cover', borderRadius: '8px 8px 0 0', display: 'block' }} onError={e => { e.target.style.display = 'none'; }} />
+            )}
             <div className="item-card-header">
               <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
                 <span style={{ fontSize: '1.6rem' }}>{catIcon(item.category)}</span>
@@ -114,6 +123,15 @@ export default function PlacesSection({ plan, places, files, onRefresh }) {
           </div>
           <div className="form-group"><label>Ticket / Booking Link</label><input className="form-control" type="url" value={form.ticket_link || ''} onChange={e => set('ticket_link', e.target.value)} placeholder="https://..." /></div>
           <div className="form-group"><label>Notes</label><textarea className="form-control" value={form.notes || ''} onChange={e => set('notes', e.target.value)} rows={2} /></div>
+          {form.image_url && (
+            <div className="form-group">
+              <label>Auto-fetched Image</label>
+              <div style={{ position: 'relative', display: 'inline-block', width: '100%' }}>
+                <img src={form.image_url} alt="Place preview" style={{ width: '100%', height: 140, objectFit: 'cover', borderRadius: 6 }} onError={e => { e.target.style.display = 'none'; }} />
+                <button type="button" onClick={() => set('image_url', '')} style={{ position: 'absolute', top: 6, right: 6, background: 'rgba(0,0,0,0.55)', color: '#fff', border: 'none', borderRadius: 4, padding: '2px 8px', cursor: 'pointer', fontSize: '0.8rem' }}>✕ Remove</button>
+              </div>
+            </div>
+          )}
         </Modal>
       )}
     </div>
