@@ -13,6 +13,7 @@ export default function PlacesSection({ plan, places, files, onRefresh }) {
   const [form, setForm] = useState(empty);
   const [saving, setSaving] = useState(false);
   const [geo, setGeo] = useState('');
+  const [lightbox, setLightbox] = useState(null);
 
   const openAdd = () => { setForm(empty); setGeo(''); setModal('add'); };
   const openEdit = (item) => { setForm({ ...item }); setGeo(''); setModal(item); };
@@ -64,7 +65,7 @@ export default function PlacesSection({ plan, places, files, onRefresh }) {
         {places.map(item => (
           <div key={item.id} className="item-card">
             {item.image_url && (
-              <img src={item.image_url} alt={item.name} style={{ width: '100%', height: 160, objectFit: 'cover', borderRadius: '8px 8px 0 0', display: 'block' }} onError={e => { e.target.style.display = 'none'; }} />
+              <img src={item.image_url} alt={item.name} onClick={() => setLightbox(item.image_url)} style={{ width: '100%', height: 160, objectFit: 'cover', borderRadius: '8px 8px 0 0', display: 'block', cursor: 'zoom-in' }} onError={e => { e.target.style.display = 'none'; }} />
             )}
             <div className="item-card-header">
               <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
@@ -93,6 +94,13 @@ export default function PlacesSection({ plan, places, files, onRefresh }) {
           </div>
         ))}
       </div>
+
+      {lightbox && (
+        <div onClick={() => setLightbox(null)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.88)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'zoom-out' }}>
+          <img src={lightbox} alt="Full view" style={{ maxWidth: '92vw', maxHeight: '90vh', borderRadius: 8, boxShadow: '0 8px 40px rgba(0,0,0,0.5)' }} onClick={e => e.stopPropagation()} />
+          <button onClick={() => setLightbox(null)} style={{ position: 'fixed', top: 18, right: 22, background: 'rgba(255,255,255,0.15)', color: '#fff', border: 'none', borderRadius: '50%', width: 36, height: 36, fontSize: '1.2rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
+        </div>
+      )}
 
       {modal && (
         <Modal title={modal === 'add' ? 'Add Place to Visit' : 'Edit Place'} onClose={close}
