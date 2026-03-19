@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
@@ -24,6 +25,7 @@ app.use('/api', require('./routes/restaurants'));
 app.use('/api', require('./routes/itinerary'));
 app.use('/api', require('./routes/summary'));
 app.use('/api', require('./routes/files'));
+app.use('/api', require('./routes/placeImage'));
 
 // Serve React frontend (production build)
 const clientDist = path.join(__dirname, '..', 'client', 'dist');

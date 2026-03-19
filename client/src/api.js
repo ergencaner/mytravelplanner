@@ -86,8 +86,15 @@ export async function geocode(address) {
 }
 
 export async function fetchPlaceImage(name) {
+  // Try Google Places first (via server-side proxy, keeps API key secure)
   try {
-    // Step 1: search Wikipedia for the best matching article
+    const res = await fetch(`/api/place-image?q=${encodeURIComponent(name)}`);
+    const data = await res.json();
+    if (data.imageUrl) return data.imageUrl;
+  } catch {}
+
+  // Fallback: Wikipedia (free, no key needed)
+  try {
     const searchRes = await fetch(
       `https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(name)}&srlimit=1&format=json&origin=*`
     );
@@ -96,8 +103,6 @@ export async function fetchPlaceImage(name) {
     if (!results || results.length === 0) return null;
 
     const title = results[0].title;
-
-    // Step 2: get the thumbnail for that article
     const imgRes = await fetch(
       `https://en.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(title)}&prop=pageimages&format=json&pithumbsize=600&origin=*`
     );
@@ -107,5 +112,6 @@ export async function fetchPlaceImage(name) {
     const page = Object.values(pages)[0];
     return page?.thumbnail?.source || null;
   } catch {}
+
   return null;
 }
