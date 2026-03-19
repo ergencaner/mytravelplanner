@@ -87,11 +87,22 @@ export async function geocode(address) {
 
 export async function fetchPlaceImage(name) {
   try {
-    const res = await fetch(
-      `https://en.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(name)}&prop=pageimages&format=json&pithumbsize=600&origin=*`
+    // Step 1: search Wikipedia for the best matching article
+    const searchRes = await fetch(
+      `https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(name)}&srlimit=1&format=json&origin=*`
     );
-    const data = await res.json();
-    const pages = data?.query?.pages;
+    const searchData = await searchRes.json();
+    const results = searchData?.query?.search;
+    if (!results || results.length === 0) return null;
+
+    const title = results[0].title;
+
+    // Step 2: get the thumbnail for that article
+    const imgRes = await fetch(
+      `https://en.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(title)}&prop=pageimages&format=json&pithumbsize=600&origin=*`
+    );
+    const imgData = await imgRes.json();
+    const pages = imgData?.query?.pages;
     if (!pages) return null;
     const page = Object.values(pages)[0];
     return page?.thumbnail?.source || null;
